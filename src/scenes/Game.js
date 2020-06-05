@@ -18,6 +18,10 @@ export default class Game extends Phaser.Scene {
     super('game') // unique key for this scene
   }
 
+  init(){
+    this.carrotsCollected = 0
+  }
+
   preload(){
     this.load.image('background', 'src/assets/bg_layer1.png')
     this.load.image('platform', 'src/assets/ground_grass.png')
@@ -40,7 +44,6 @@ export default class Game extends Phaser.Scene {
       classType: Carrot
     })
 
-    
     // platforms
     this.platforms = this.physics.add.staticGroup()
     
@@ -89,7 +92,6 @@ export default class Game extends Phaser.Scene {
     this.cameras.main.setDeadzone(this.scale.width * 1.5)
 
     // carrot counter
-    this.carrotsCollected = 0
     const style = { color: '#000000', fontSize: 24 }
     this.carrotsCollectedText = this.add.text(240, 10, `Carrots: ${this.carrotsCollected}`, style)
       .setScrollFactor(0)
@@ -134,6 +136,11 @@ export default class Game extends Phaser.Scene {
         this.physics.world.disableBody(carrot.body) // disable from physics world
       }
     })
+
+    // handle game over
+    if (this.findBottomMostPlatform().y + 200 < this.player.y){
+      this.scene.start('game-over')
+    }
   }
 
   /**
@@ -181,6 +188,23 @@ export default class Game extends Phaser.Scene {
 
     const txt = `Carrots: ${this.carrotsCollected}`
     this.carrotsCollectedText.text = txt
+  }
+
+  /**
+   * 
+   */
+  findBottomMostPlatform(){
+    return this.platforms.getChildren().reduce((bottom, current, i) => {
+      if (bottom){
+
+        if (bottom.y < current.y){ return current }
+        else { return bottom }
+
+      } else {
+
+        return current
+      }
+    }, null)
   }
 }
 
