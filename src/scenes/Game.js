@@ -31,6 +31,8 @@ export default class Game extends Phaser.Scene {
 
     this.load.image('carrot', 'src/assets/carrot.png')
 
+    this.load.audio('jump', 'src/sfx/phaseJump1.ogg')
+
     this.cursors = this.input.keyboard.createCursorKeys()
   }
 
@@ -107,6 +109,7 @@ export default class Game extends Phaser.Scene {
       const scrollY = this.cameras.main.scrollY
       if (platform.y >= scrollY + 700){
         platform.y = scrollY - Phaser.Math.Between(50, 100)
+        platform.x = Phaser.Math.Between(80, 400)
         platform.body.updateFromGameObject()
         this.addCarrotAbove(platform)
       }
@@ -115,6 +118,13 @@ export default class Game extends Phaser.Scene {
     const touchingDown = this.player.body.touching.down
     if (touchingDown){
       this.player.setVelocityY(-300) // player jump straight up
+      this.player.setTexture('bunny-jump') // change sprite
+      this.sound.play('jump') // jump sound
+    }
+
+    const vy = this.player.body.velocity.y
+    if (vy > 0 && this.player.texture.key !== 'bunny-stand'){
+      this.player.setTexture('bunny-stand')
     }
 
     const { left, right } = this.cursors
